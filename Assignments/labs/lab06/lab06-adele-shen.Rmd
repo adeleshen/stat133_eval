@@ -1,0 +1,26 @@
+---
+title: "lab06-adele-shen"
+output: html_document
+---
+# Part 1) Git Workshop
+
+```{r eval = FALSE}
+Adeles-MBP:~ AdeleShen$ git config --global user.name "Adele Shen"
+Adeles-MBP:~ AdeleShen$ git config --global user.email "adeleshen@berkeley.edu"
+Adeles-MBP:~ AdeleShen$ git config --global color.ui "auto"
+
+cd Desktop
+mkdir baby-git-project
+cd baby-git-project
+git init
+
+echo "# Demo Repo" >> README.md
+git status
+git add README.md
+git status
+git commit -m "first commit"
+
+git remote add origin https://github.com/username/demo-repo.git
+git remote -v
+```
+

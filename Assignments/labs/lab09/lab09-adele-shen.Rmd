@@ -1,0 +1,186 @@
+---
+title: "lab09-adele-shen"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Basics of String Manipulation
+```{r}
+head(USArrests)
+states <- rownames(USArrests)
+head(states)
+```
+nchar()
+tolower()
+toupper()
+casefold()
+paste()
+paste0()
+substr()
+
+```{r}
+# There’s a special wrapper around paste() called paste0() which is equivalent to paste(..., sep = "")
+# Collapse puts it into the same string
+```
+
+```{r}
+nchar(states)
+```
+
+```{r}
+tolower(states)
+toupper(states)
+casefold(states)
+casefold(states, upper = TRUE)
+```
+
+```{r}
+num_chars <- nchar(states)
+```
+
+# Your Turn*: paste()
+```{r}
+paste(head(states), "=", head(num_chars))
+```
+```{r}
+paste(head(states), collapse = '')
+```
+
+# Your Turn*: Permutations
+```{r}
+factorial(num_chars[1])
+```
+
+```{r}
+substr(states, 1, 3)
+substr(states, num_chars - 2, num_chars)
+paste0(substr(states, 1, 1), substr(states, num_chars - 2, num_chars))
+```
+
+```{r}
+char_freqs = table(num_chars)
+char_num = as.numeric(names(char_freqs))
+states_list = vector("list", length(char_num))
+
+for (i in 1:length(char_freqs)) {
+  state = paste(states[num_chars == char_num[i]], collapse = ", ")
+  if (char_num[i] %% 2 == 0) {
+    states_list[[i]] <- toupper(state)
+  } else {
+    states_list[[i]] <- tolower(state)
+  }
+}
+
+```
+
+```{r}
+head(states_list)
+```
+
+# Converting Temperatures
+```{r}
+to_celsius <- function(x = 1) {
+  (x - 32) * (5/9)
+}
+
+to_kelvin <- function(x = 1) {
+  (x + 459.67) * (5/9)
+}
+
+to_reaumur <- function(x = 1) {
+  (x - 32) * (4/9)
+}
+
+to_rankine <- function(x = 1) {
+  x + 459.67
+}
+
+temp_convert <- function(x = 1, to = "celsius") {
+  to = tolower(to)
+  switch(to,
+         "celsius" = to_celsius(x),
+         "kelvin" = to_kelvin(x),
+         "reaumur" = to_reaumur(x),
+         "rankine" = to_rankine(x))
+}
+
+temp_convert(30, 'celsius')
+temp_convert(30, 'Celsius')
+temp_convert(30, 'CELSIUS')
+```
+
+# Names of files
+```{r}
+files = paste("file", 1:10, ".csv", sep ="")
+paste0("file", 1:10, ".csv")
+
+for (i in 1:10) {
+  files[i] = paste("file", i, ".csv", sep ="")
+}
+
+```
+```{r}
+# paste(files, switch(substr(files, 1, 4), "dataset"))
+dataset = rep(0, length(files))
+for (i in length(files)) {
+  dataset[i] = switch(substr(files[i], 1, 4), "dataset")
+}
+
+dataset
+
+```
+
+
+# cat()
+```{r}
+# cat() is to write contents to a text file
+# the first call to cat() does not include the argument append. The rest of the calls do include append = TRUE. If you don't, deletes the previous commands.
+# \n: enter. (single space)
+
+outfile <- "output.txt"
+
+# writing to 'outfile.txt'
+cat("---", file = "output.txt")
+cat('\ntitle: "Some title"', file = "output.txt", append = TRUE)
+cat('\nauthor: "Your Name"', file = "output.txt", append = TRUE)
+cat('\ndate: "today\'s date"', file = "output.txt", append = TRUE)
+cat('\noutput: "html_document"', file = "output.txt", append = TRUE)
+cat("\n---", file = "output.txt", append = TRUE)
+cat("\n\nThis is the first line", file = outfile, append = TRUE)
+# insert new line
+cat("\n", file = outfile, append = TRUE)
+cat("A 2nd line", file = "output.txt", append = TRUE)
+# insert 2 new lines
+cat("\n\n", file = outfile, append = TRUE)
+cat("\nThe quick brown fox jumps over the lazy dog\n",
+    file = outfile, append = TRUE)
+```
+
+# Colors
+```{r}
+is_color = function(word) {
+  word %in% colors()
+}
+is_color('yellow')  # TRUE
+
+is_color('blu')     # FALSE
+
+is_color('turkuoise') # FALSE
+```
+
+```{r}
+colplot = function(col) {
+  if (is_color(col) == FALSE) {
+    stop("invalid color blu")
+  }
+  else {
+    plot(x = runif(20), y = rnorm(20), col = col)
+    title(paste('Testing color', col))
+  }
+}
+
+colplot('tomato')
+```

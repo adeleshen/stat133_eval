@@ -1,0 +1,83 @@
+---
+title: "Introduction to binomial"
+author: "Adele Shen"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to binomial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo = FALSE, message = FALSE}
+knitr::opts_chunk$set(collapse = T, comment = "#>")
+library(binomial)
+```
+
+## Creating an object of class `"binvar"` with the `bin_variable` function
+
+This returns a list of the parameters you have set for your binomial variable.
+
+```{r}
+bvar = bin_variable(trials = 10, prob = 0.3)
+```
+Using the `"binvar"` object, you can then use `print.summary.binvar()` to see more characteristics of the binomial variable you just defined, such as measurements like mean, variance, etc.
+
+```{r, eval = FALSE}
+print.summary.binvar(bvar)
+```
+
+## Binomial Measures
+
+You can make different calculations / measurements of a binomial random variable specified first by the number of trials and secondly by the probability of success.
+
+```{r, eval = FALSE}
+bin_mean(trials = 10, prob = 0.3)
+
+bin_variance(10, 0.3)
+
+bin_mode(10, 0.3)
+
+bin_skewness(10, 0.3)
+
+bin_kurtosis(10, 0.3)
+
+```
+
+## The Binomial Distribution
+
+Preliminarily, you can calculate the total number of combinations of choosing k items or events from a total n with `bin_choose()`
+
+```{r, eval = FALSE}
+bin_choose(n = 5, k = 2)
+```
+
+To calculate the probability of getting a certain number of successes in a certain number of identically distributed and independent trials with a fixed probablility of success, just use `bin_probability()`.
+
+```{r, eval = FALSE}
+bin_probability(trials = 5, prob = 0.5)
+```
+
+If you want the entire probability distribution (in a data.frame of class `"bindis"` and `"data.frame"`), use `bin_distribution()`. For the binomial cumulative distribution, use `bin_cumulative()`, which will return a data.frame of class `"bincum"` and `"data.frame"`. You can also plot these with `plot.bindis()` and `plot.bincum()` respectively, which respectively return a probability histogram and a line graph that asymptotically approaches 1 on the right.
+
+```{r, eval = FALSE}
+distr = bin_distribution(trials = 5, prob = 0.5)
+plot.bindis(distr)
+
+cdist = bin_cumulative(trials = 5, prob = 0.5)
+plot.bincum(cdist)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+

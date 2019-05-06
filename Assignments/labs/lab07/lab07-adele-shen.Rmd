@@ -1,0 +1,245 @@
+---
+title: "lab07-adele-shen.Rmd"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+```
+
+```{r}
+#' @title Name of your function
+#' @description What the function does
+#' @param x input(s) of your function
+#' @return output of your function
+```
+
+```{r}
+#' @title area of rectangle
+#' @description calculates the area of a rectangle
+#' @param len length of the rectangle (numeric)
+#' @param wid width of the rectangle (numeric)
+#' @return computed area
+rect_area <- function(len = 1, wid = 1) {
+  if (len < 0) {
+    stop("len must be positive")
+  }
+  if (wid < 0) {
+    stop("wid must be positive")
+  }
+  area <- len * wid
+  return(area)
+}
+```
+
+# Area of a circle
+```{r}
+#' @title area of circle
+#' @description calculates area of a circle
+#' @param radius length of the radius of circle (numeric)
+#' @return computed area
+
+circle_area = function(radius = 1) {
+  if (radius < 0) {
+    stop("radius cannot be negative")
+  }
+  area = pi * radius^2
+  return(area)
+}
+
+circle_area(radius = 3)
+
+```
+
+# Surface area of a cylinder
+```{r}
+#' @title volume of cylinder
+#' @description calculates volume of a cylinder
+#' @param radius length of the radius of cylinder (numeric)
+#' @param height length of the height of cylinder (numeric)
+#' @return computed area
+
+cylinder_volume = function(radius = 1, height = 1) {
+  if (radius < 0) {
+    stop("radius cannot be negative")
+  }
+  if (height < 0) {
+    stop("height cannot be negative")
+  }
+  area = pi * radius^2
+  volume = area * height
+  return(volume)
+}
+cylinder_volume(radius = 3, height = 10)
+cylinder_volume(height = 10, radius = 3)
+```
+
+# If Conditionals
+
+```{r}
+#' @title even number
+#' @description check if an input is even number
+#' @param x number or character
+#' @return TRUE or FALSE is number is or is not even, respectively, NA if input x is not a number
+
+is_even = function(x = 1) {
+  if (typeof(x) != 'double') {
+    return(NA)
+  }
+  if (x%%2 != 0) {
+    return(FALSE)
+  }
+  if (x%%2 == 0) {
+    return(TRUE)
+  }
+}
+```
+
+```{r}
+#' @title even number
+#' @description check if an input is even number
+#' @param x number or character
+#' @return TRUE or FALSE is number is or is not even, respectively, NA if input x is not a number
+
+is_even = function(x = 1){
+  if (typeof(x) != 'double') {
+    return(NA)
+  }
+  return (x%%2 == 0)
+}
+
+is_even(4)
+is_even(3)
+is_even('b')
+```
+
+# Odd Number
+```{r}
+#' @title odd number
+#' @description check if an input is odd number
+#' @param x number or character
+#' @return TRUE or FALSE is number is or is not odd, respectively, NA if input x is not a number
+
+is_even = function(x = 1){
+  if (typeof(x) != 'double') {
+    return(NA)
+  }
+  return (x%%2 != 0)
+}
+
+is_even(4)
+is_even(3)
+is_even('b')
+```
+
+# a grading function
+```{r}
+#' @title grading function
+#' @description assigns a letter grade to a score  
+#' @param score between 0 and 100 (numeric)
+#' @return letter grade (character)
+
+grade = function(score) {
+  if (score >= 90 & score <= 100) {
+    return("A")
+  } 
+  else if (score >= 80 & score < 90) {
+    return("B")
+  } 
+  else if (score >= 70 & score < 80) {
+    return("C")
+  } 
+  else if (score >= 60 & score < 70) {
+    return("D")
+  } 
+  else if (score >= 0 & score < 60) {
+    return("F")  
+  }
+  else {
+    return("score must be a number between 0 and 100")
+  }
+}
+
+```
+
+
+```{r}
+# grade "A"
+grade(score = 90)
+
+# grade "B"
+grade(score = 89.9999)
+
+# grade "C"
+grade(score = 70.0000001)
+
+# grade "F"
+grade(score = 50)
+grade(score = 0)
+
+grade(score = 'a')
+
+```
+```{r}
+
+# Convert the day of the week into a number.
+day <- "Tuesday" # Change this value!
+
+switch(day, # The expression to be evaluated.
+  Sunday = 1,
+  Monday = 2,
+  Tuesday = 3,
+  Wednesday = 4,
+  Thursday = 5,
+  Friday = 6,
+  Saturday = 7,
+  NA)
+```
+
+```{r}
+miles2inches = function(x = 1) {
+  x * 63360
+}
+
+miles2feet = function(x = 1) {
+  x * 5280
+}
+
+miles2yards = function(x = 1) {
+  x * 1760
+}
+
+miles2meters = function(x = 1) {
+  x / 0.00062137
+}
+
+miles2kms = function(x = 1) {
+  x / 0.62137
+}
+```
+
+# Using switch()
+```{r}
+#' @title converting between units function
+#' @description converts a number of miles into inches, feet, 
+#'  yards, meters, or kilometers  
+#' @param x number of miles (numeric)
+#' @param to the desired unit of measurement (character)
+#' @return number of units chosen converted from miles (numeric)
+
+convert = function(x, to = "km") {
+  switch(to,
+         "in" = miles2inches(x),
+         "ft" = miles2feet(x),
+         "yd" = miles2yards(x),
+         "m" = miles2meters(x),
+         "km" = miles2kms(x))
+}
+
+convert(3, "in")
+convert(3, "ft")
+convert(3, "yd")
+convert(3, "m")
+convert(3, "km")
+```
+

@@ -1,0 +1,180 @@
+---
+title: "warmup04-adele-shen"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+library("readr")
+```
+
+## 1) Importing Data
+```{r}
+github <- 'https://raw.githubusercontent.com/ucb-stat133/stat133-hws/'
+repo <- 'master/data/nba2018-players.csv'
+datafile <- paste0(github, repo)
+destination = "nba.data"
+download.file(datafile, destination)
+
+```
+
+```{r eval = FALSE}
+# column_types = cols("character", "character", "factor", "integer", "integer", "integer", "integer", "character", "real", "integer", "integer", "integer", "integer", "integer", "integer")
+
+# you can use a compact string representation where each character represents one column: c = character, i = integer, n = number, d = double, l = logical, f = factor, D = date, T = date time, t = time, ? = guess, or _/- to skip the column
+```
+
+```{r}
+column_types = 'ccfiiiicdiiiiii'
+```
+
+```{r}
+dat = read_csv("nba.data", col_types = column_types)
+dat
+```
+
+```{r}
+summary(dat)
+```
+
+```{r}
+class(dat)
+```
+
+## 2) Technical Questions about "readr"
+
+###### a) When you print dat— typing the name of the object to see how it gets displayed— R tells you that it is a tibble. Do some research (e.g. google it) to explain what are the similarities and differences between a data.frame and a tibble.
+
+##### The similarities between a data.frame and a tibble are that they are both tables of data that can be non-atomic. There are two main differences: printing and subsetting. Printing tibbles shows only the first 10 rows and all the columns that fit on screen. Each column reports name and type. Tibbles also clearly delineate [ and [[: [ always returns another tibble, [[ always returns a vector. (Source: https://blog.rstudio.com/2016/03/24/tibble-1-0-0/)
+
+###### b) Say you want to import just a couple of columns from nba2018-players.csv. For instance, suppose you want to import columns player, team, salary, and points, with data types "character", "character", "double", and "double", respectively. Is it possible to use read_csv() to import only these columns, with the specified data types? Yes or No, and explain.
+
+##### Yes. Use _/- to skip the column.
+
+###### c) The base R function read.csv() uses arguments like header, col.names, na.strings, and colClasses. What are the equivalent (or similar) arguments in read_csv()?
+
+##### For header = TRUE, use col_names = TRUE to use first row as column names. For col.names, there is col_names. For na.strings, there is na. For colClasses, there is col_types. 
+
+## 3) Salaries By Team
+### a
+```{r}
+unique(dat$team)
+```
+
+```{r}
+team_salaries = summarise(
+  group_by(dat, team),
+  total_salary = sum(salary)/1000000, 
+  mean_salary = mean(salary)/1000000, 
+  median_salary = median(salary)/100000
+)
+
+team_salaries = arrange(team_salaries, desc(total_salary))
+team_salaries
+```
+### b
+```{r}
+team_salaries_full = as.data.frame(team_salaries)
+```
+
+```{r}
+ggplot(team_salaries_full, aes(x=reorder(team, total_salary), y=total_salary)) +
+  geom_bar(stat = 'identity') +
+  coord_flip() +
+  labs(title = "NBA Teams Ranked By Total Salary") +
+  xlab("Team") +
+  ylab("Total Salary (in millions)") +
+  geom_hline(aes(yintercept = mean(team_salaries_full$total_salary), color = 'red'), show.legend = FALSE) +
+  annotate("text", x = "BOS", y = 110, label = "Avg total salary", color = 'red')
+```
+
+
+## 4) Points by Team
+### a
+```{r}
+team_points = summarise(
+  group_by(dat, team),
+  total_points = sum(points),
+  mean_points = mean(points),
+  median_points = median(points)
+) 
+  
+team_points = arrange(team_points, desc(total_points))
+```
+
+### b
+```{r}
+team_points_full = as.data.frame(team_points)
+team_points_full
+```
+
+###c
+```{r}
+ggplot(team_points_full) +
+  geom_bar(aes(x = reorder(team, total_points), y = total_points), stat = 'identity') +
+  labs(title = "NBA Teams Ranked by Total Scored Points") +
+  xlab("Team") +
+  ylab("Total Scored Points") +
+  coord_flip() +
+  geom_hline(yintercept = mean(team_points_full$total_points), color = 'red') +
+  annotate(geom = "text", x = "CHI", y = 8600, label = "Avg total points", color = 'red')
+
+# Without stat ='identity' ggplot wants to aggregate your data into counts.
+```
+
+## 5) Cost of Scored Points
+#### What is the team’s cost of a scored point (in terms of its payroll)?
+
+### a
+```{r}
+points_salary = full_join(team_salaries, team_points, by = "team")
+```
+### b
+```{r}
+summary(points_salary)
+```
+### c
+```{r}
+points_salary1 = data.frame(mutate(points_salary, cost_point = total_salary*1000000/total_points))
+```
+### d
+```{r}
+summary(points_salary1$cost_point)
+```
+
+### e
+
+```{r}
+colors = c("blue", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "red")
+```
+
+```{r}
+ggplot(points_salary1) +
+  geom_bar(aes(x=reorder(team, cost_point), y=cost_point), stat='identity', color = colors) +
+  coord_flip() +
+  labs(title = "Relationship between total salaries and total points", subtitle = "Using cost/point as a measurement") +
+  xlab("Team") +
+  ylab("Cost Per Point (in dollars)") +
+  geom_hline(yintercept = mean(points_salary1$cost_point), color = 'red') +
+  annotate(geom = "text", x = 6, y = 11500, label = "Avg cost per point", color = 'red')
+```
+
+
+### e
+```{r}
+ggplot(points_salary1) +
+  geom_point(aes(x = median_salary, y = median_points, size = cost_point, color = cost_point)) +
+  labs(title = "scatterplot of median_salary and median_points") +
+  xlab("Median Salary") +
+  ylab("Median Points") +
+  scale_color_gradient(low = "purple", high = "pink")
+```
+

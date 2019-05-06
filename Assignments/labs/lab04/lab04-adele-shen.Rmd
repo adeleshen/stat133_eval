@@ -1,0 +1,288 @@
+---
+title: "lab04-adele-shen"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(readr)
+```
+
+
+# Lab 4: First contact with dplyr and ggplot2
+
+```{r}
+
+download.file('https://raw.githubusercontent.com/ucb-stat133/stat133-labs/master/data/nba2018-players.csv', "nba2018-players.csv")
+
+# with "base" read.csv()
+dat <- read.csv('nba2018-players.csv', stringsAsFactors = FALSE)
+
+# with "readr" read_csv()
+dat <- read_csv('nba2018-players.csv')
+```
+
+```{r}
+#slice() allows you to select rows by position:
+
+#filter() allows you to select rows by condition:
+
+#select() allows you to select columns by name:
+```
+
+```{r}
+#use slice() to subset the data by selecting the first 5 rows.
+slice(dat, 1:5)
+#use slice() to subset the data by selecting rows 10, 15, 20, …, 50.
+slice(dat, seq(10, 50, 5))
+#use slice() to subset the data by selecting the last 5 rows.
+slice(dat, seq(length(dat)))
+#use filter() to subset those players with height less than 70 inches tall.
+filter(dat, height < 70)
+#use filter() to subset rows of Golden State Warriors ('GSW').
+filter(dat, team == "GSW")
+#use filter() to subset rows of GSW centers ('C').
+filter(dat, team == "GSW" & position == "C")
+#use filter() and then select(), to subset rows of lakers ('LAL'), and then display their names.
+LAL = filter(dat, team == 'LAL')
+select(LAL, player) # returns dataframe
+
+player[dat$team =="LAL"] # returns list
+
+#use filter() and then select(), to display the name and salary, of GSW point guards
+GSWpg = filter(dat, team == "GSW" & position == "PG")
+select(GSWpg, player, salary)
+#find how to select the name, age, and team, of players with more than 10 years of experience, making 10 million dollars or less.
+select(filter(dat, experience > 10 & salary <= 10000000), player, age, team)
+#find how to select the name, team, height, and weight, of rookie players, 20 years old, displaying only the first five occurrences (i.e. rows)
+slice(select(filter(dat, age == 20), player, team, height, weight), 1:5)
+
+```
+
+# Mutate
+```{r}
+# mutate() allows you to add new variables
+# creating a small data frame step by step
+gsw <- filter(dat, team == 'GSW')
+gsw <- select(gsw, player, height, weight)
+gsw <- slice(gsw, c(4, 8, 10, 14, 15))
+gsw
+mutate(gsw, height / weight)
+mutate(gsw, ht_wt = height / weight)
+gsw2 <- mutate(gsw, ht_m = height * 0.0254, wt_kg = weight * 0.4536)
+gsw2
+```
+
+```{r}
+# arrange() allows you to reorder rows
+arrange(gsw, height)
+arrange(gsw, desc(height))
+```
+```{r}
+# order rows by height, and then weight
+arrange(gsw, height, weight)
+```
+
+
+```{r}
+#using the data frame gsw, add a new variable product with the product of height and weight.
+mutate(gsw, height*weight)
+#create a new data frame gsw3, by adding columns log_height and log_weight with the log transformations of height and weight.
+gsw3 = mutate(gsw, log_height = log(height), log_weight = log(weight))
+#use the original data frame to filter() and arrange() those players with height less than 71 inches tall, in increasing order.
+arrange(filter(dat, height <= 71), height)
+#display the name, team, and salary, of the top-5 highest paid players
+slice(arrange(select(dat, player, team, salary), desc(salary)), 1:5)
+#display the name, team, and salary, for the top-5 highest paid players
+slice(arrange(select(dat, player, team, points3), desc(points3)), 1:10)
+#display the name, team, and points3, of the top 10 three-point players
+slice(arrange(select(dat, player, position, minutes), desc(minutes)), 1:3)
+#create a data frame gsw_mpg of GSW players, that contains variables for player name, experience, and min_per_game (minutes per game), sorted by min_per_game (in descending order)
+
+gsw_mpg = arrange(
+  select(
+    mutate(filter(dat, team == 'GSW'), min_per_game = minutes / games), player, experience, min_per_game), desc(min_per_game))
+```
+
+#Summarizing values with summarise()
+```{r}
+# applying a function on one or more columns, in order to summarize values
+# average salary of NBA players
+summarise(dat, avg_salary = mean(salary))
+
+summarise(
+  dat, 
+  min = min(salary),
+  median = median(salary),
+  avg = mean(salary),
+  max = max(salary)
+)
+```
+
+
+```{r}
+# group_by(). This is the function that allows you to perform data aggregations, or grouped operations
+summarise(
+  group_by(dat, team),
+  avg_salary = mean(salary)
+)
+```
+```{r}
+summarise(
+  group_by(dat, position),
+  avg_salary = mean(salary)
+)
+```
+```{r}
+ arrange(
+  summarise(
+    group_by(dat, position),
+    avg_height = mean(height),
+    avg_weight = mean(weight)),
+  desc(avg_height)
+)
+```
+```{r}
+# use summarise() to get the largest height value.
+summarise(dat, max(height))
+# use summarise() to get the standard deviation of points3.
+summarise(dat, sd(points3))
+# use summarise() and group_by() to display the median of three-points, by team.
+summarise(
+  group_by(dat, team), 
+  median(points3)
+)
+# display the average triple points by team, in ascending order, of the bottom-5 teams (worst 3pointer teams)
+slice(
+  arrange(
+    summarise(
+      group_by(dat, team), 
+      mean = mean(points3)),
+    mean),
+  1:5
+)
+
+# obtain the mean and standard deviation of age, for Power Forwards, with 5 and 10 years of experience (including 5 and 10).
+summarise(
+  select(filter(dat, position == 'PF' & experience >= 5 & experience <= 10),
+         age),
+  mean(age),
+  sd(age)
+)
+```
+
+# "First" contact with ggplot() :)
+```{r}
+ggplot(data = dat) +
+  geom_point(aes(x = points, y = salary))
+ggplot(data = dat, aes(x = points, y = salary)) +
+  geom_point()
+# sized and colored scatterplot 
+ggplot(data = dat, aes(x = points, y = salary)) +
+  geom_point(aes(color = position, size = points3), alpha = 0.7)
+```
+
+```{r}
+# Use the data frame gsw to make a scatterplot of height and weight.
+ggplot(data = dat, aes(x = height, y = weight)) +
+  geom_point()
+# Find out how to make another scatterplot of height and weight, using geom_text() to display the names of the players.
+ggplot(data = dat, aes(x = height, y = weight)) +
+  geom_point() +
+  geom_text(aes(label = player))
+# Get a scatter plot of height and weight, for ALL the warriors, displaying their names with geom_label().
+ggplot(data = filter(dat, team == 'GSW'), aes(x = height, y = weight)) + 
+  geom_label(aes(label = player))
+# Get a density plot of salary (for all NBA players).
+ggplot(dat) + 
+  geom_density(aes(x = salary))
+# geom_density: continious histogram
+# Get a histogram of points2 with binwidth of 50 (for all NBA players).
+ggplot(dat) + 
+  geom_histogram(aes(x = points2), binwidth = 50)
+# Get a barchart of the position frequencies (for all NBA players).
+ggplot(dat) +
+  geom_bar(aes( x = position))
+# Make a scatterplot of experience and salary of all Centers, and use geom_smooth() to add a regression line.
+ggplot(filter(dat, position == "C"), aes(x = experience, y = salary)) +
+  geom_point() +
+  geom_smooth(method = lm)
+# Repeat the same scatterplot of experience and salary of all Centers, but now use geom_smooth() to add a loess line (i.e. smooth line).
+ggplot(filter(dat, position == "C"), aes(x = experience, y = salary)) +
+  geom_point() +
+  geom_smooth(method = loess)
+```
+
+#Faceting
+```{r}
+ggplot(data = dat, aes(x = points, y = salary)) +
+  geom_point() +
+  facet_wrap(~ position)
+# scatterplot by position
+ggplot(data = dat, aes(x = points, y = salary)) +
+  geom_point(aes(color = position), alpha = 0.7) +
+  facet_grid(~ position) +
+  geom_smooth(method = loess)
+# scatterplot by position
+ggplot(data = dat, aes(x = points, y = salary)) +
+  geom_point(aes(color = position), alpha = 0.7) +
+  facet_grid(position ~ .) +
+  geom_smooth(method = loess)
+```
+
+```{r}
+?facet_grid
+```
+
+```{r}
+# Make scatterplots of experience and salary faceting by position
+ggplot(dat, aes(x = experience, y = salary)) +
+  geom_point() +
+  facet_grid(~ position)
+# Make scatterplots of experience and salary faceting by teamggplot(data = dat, aes(x = experience, y = salary)) +
+ggplot(data = dat, aes(x = experience, y = salary)) +
+  geom_point() +
+  facet_wrap(~ team)
+# Make density plots of age faceting by team
+ggplot(dat) +
+  geom_density(aes(x = age)) +
+  facet_wrap(~ team)
+# Make scatterplots of height and weight faceting by position
+ggplot(data = dat, aes(x = height, y = weight)) +
+  geom_point() +
+  facet_wrap(~ position)
+# Make scatterplots of height and weight, with a 2-dimensional density, geom_density2d(), faceting by position
+ggplot(dat, aes(height, weight)) +
+  geom_point() +
+  geom_density2d() +
+  facet_wrap(~ position)
+# Make a scatterplot of experience and salary for the Warriors, but this time add a layer with theme_bw() to get a simpler background
+ggplot(filter(dat, team == "GSW")) +
+  geom_point(aes(experience, salary)) +
+  theme_bw()
+# Repeat any of the previous plots but now adding a leyer with another theme e.g. theme_minimal(), theme_dark(), theme_classic()
+ggplot(filter(dat, team == "GSW")) +
+  geom_point(aes(experience, salary)) +
+  theme_dark()
+
+ggplot(filter(dat, team == "GSW")) +
+  geom_point(aes(experience, salary)) +
+  theme_classic()
+
+ggplot(filter(dat, team == "GSW")) +
+  geom_point(aes(experience, salary)) +
+  theme_minimal()
+```
+
+
+
+
+
+
+
+

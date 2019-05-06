@@ -1,0 +1,7 @@
+      mpg             disp      
+ Min.   :10.40   Min.   : 71.1  
+ 1st Qu.:15.43   1st Qu.:120.8  
+ Median :19.20   Median :196.3  
+ Mean   :20.09   Mean   :230.7  
+ 3rd Qu.:22.80   3rd Qu.:326.0  
+ Max.   :33.90   Max.   :472.0  

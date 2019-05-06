@@ -1,0 +1,137 @@
+---
+title: "lab09-adele-shen"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library("stringr")
+library(ggplot2)
+```
+
+```{r}
+dat = read.csv("https://raw.githubusercontent.com/ucb-stat133/stat133-labs/master/data/text-emotion.csv", stringsAsFactors = FALSE)
+
+content = dat$content
+conts = nchar(content)
+summary(conts)
+
+ggplot() +
+  geom_histogram(aes(conts), binwidth = 5)
+```
+
+```{r}
+sum(conts) == 0
+sum(conts) == 1
+
+content[str_length(content) == 1]
+
+which(conts == 1)
+```
+
+# 2) Author (usernames)*
+
+```{r}
+usernames = dat$author
+
+# 15 characters
+long_names <- usernames[nchar(usernames)>15]
+long_names
+
+# containing other symbols
+others = c(str_detect(usernames,"//w"))
+sum(others)
+
+# number of characters of the shortest usernames? And what are the names of these authors?
+char_users = nchar(usernames)
+short = min(char_users)
+short
+short_authors = usernames[char_users == 2]
+short_authors
+```
+
+# 3) Various Symbols and Strings*
+
+```{r}
+# at least one caret symbol "^"
+caret = str_detect(content,"\\^+")
+sum(caret)
+```
+
+```{r}
+# three or more consecutive dollar symbols "$"
+dollar = str_detect(content,"\\$$$+")
+sum(dollar)
+```
+
+```{r}
+#How many tweets do NOT contain the characters "a" or "A" (write a command to answer this question).
+aa = str_detect(content, "^[^aA]+$")
+sum(aa)
+
+head(content[aa], 10)
+```
+
+```{r}
+# exclamation symbols "!" 
+# uses PASTE0
+excl <-rep(0, 140)
+for (i in 1:140) {
+  excl[i] <- sum(str_detect(content, paste0("\\!{", i, "}")))}
+excl
+
+#largest number of exclamation symbols
+position = str_detect(content,paste0("!{59}"))
+content[position]
+```
+
+# 4) Sentiment*
+```{r}
+sentiment = dat$sentiment
+
+# types of sentiments (i.e. categories)
+uniq = unique(sentiment)
+length(uniq)
+```
+
+```{r}
+# frequencies (i.e. counts) of each sentiment
+freq_table = table(sentiment)/length(sentiment)
+
+#Graph the relative frequencies (i.e. proportions) with a horizontal barplot (bars horizontally oriented) in decreasing order, including names of sentiment types.
+
+sorted = sort(freq_table, decreasing = TRUE)
+barplot(sorted)
+```
+
+```{r}
+#Sentiment and length of tweets: compute a table with the average length of characters per sentiment (i.e. average number of characters for neutral tweets, for happy tweets, etc.). Display this table.
+
+char_sentiment = c()
+for (i in uniq) {
+  char_sentiment[i] = mean(nchar(content[sentiment == i]))
+}
+dat1 = data.frame(char_sentiment)
+dat1
+```
+
+# Optional Challenge: Hashtags
+
+```{r}
+hashtag = str_count(dat$content,"\\#\\w+")
+sum(hashtag)
+
+barplot(table(hashtag))
+```
+
+
+```{r}
+mean = mean(str_length(str_match_all(content,"\\#\\w+")))
+mode =names(which.max(table(str_length(str_match_all(content,"\\#\\w+")))))
+```
+
+
+

@@ -1,0 +1,222 @@
+---
+title: "warmup02-adele-shen"
+output: html_document
+---
+# Warmup 02: Basic Data Objects
+
+### 1) Vectors
+```{r}
+number = c(30L, 35L, 23L, 9L, 11L, 27L, 34L, 6L, 3L, 0L)
+player = c(
+"Stephen Curry",
+"Kevin Durant",
+"Draymond Green",
+"Andre Iguodala",
+"Klay Thompson",
+"Zaza Pachulia",
+"Shaun Livingston",
+"Nick Young",
+"David West",
+"Patrick McCaw"
+)
+
+position = as.factor(c(
+'PG', 'PF', 'PF', 'SF', 'SG', 'C', 'PG', 'SG', 'C', 'SG'))
+
+height = c(
+'6-3', '6-9', '6-7', '6-6', '6-7', '6-11', '6-7', '6-7', '6-9', '6-7')
+
+weight <- c(190, 240, 230, 215, 215, 270, 192, 210, 250, 185)
+
+birthdate <- c(
+'March 14, 1988',
+'September 29, 1988',
+'March 4, 1990',
+'January 28, 1984',
+'February 8, 1990',
+'February 10, 1984',
+'September 11, 1985',
+'June 1, 1985',
+'August 29, 1980',
+'October 25, 1995'
+)
+
+experience <- c(8L, 10L, 5L, 13L, 6L, 14L, 12L, 10L, 14L, 1L)
+
+college <- c(
+"Davidson College",
+"University of Texas at Austin",
+"Michigan State University",
+"University of Arizona",
+"Washington State University",
+NA,
+NA,
+"University of Southern California",
+"Xavier University",
+"University of Nevada, Las Vegas"
+)
+```
+
+```{r}
+# a) What is the name of the heaviest player?
+player[which.max(weight)]
+# b) What is the college of the player that has a height of 6-6?
+player[height == '6-6']
+# c) What is the position of the player with more years of experience?
+position[which.max(experience)]
+# d) What is the number of the lightest player?
+number[which.min(weight)]
+# e) Obtain frequencies (counts) of the position values.
+table(position)
+# f) How many players have a weight larger than the average (i.e. mean) weight?
+sum(weight > mean(weight))
+# g) How many players have between 9 and 12 years of experience (inclusive)?
+sum(experience <= 12 & experience >= 9)
+# h) What is the mean years of experience of Shooting Guard (SG) players?
+mean(experience[position == 'SG'])
+# i) What is the median weight of those players with a position different of Center (C)?
+median(weight[position != 'C'])
+# j) What is the first quartile (i.e. bottom 25th percentile) of years of experience among Power Forwards (PF) and Shooting Guards (SG)
+quantile(experience[position == 'PF' | position == 'SG'], 0.25)
+```
+
+
+### 2) List for GSW
+```{r}
+gsw <- list(
+player = player,
+number = number,
+position = position,
+weight = weight,
+experience = experience
+)
+```
+
+```{r}
+# a) What is the number of the heaviest player?
+gsw$number[which.max(gsw$weight)]
+number[which.max(weight)]
+# b) What is the position of the player with less experience?
+gsw$position[which.min(gsw$experience)]
+# c) How many players have less than 8 or more than 11 years of experience?
+sum(gsw$experience < 8 | gsw$experience > 11)
+# d) What is the third quartile (i.e. bottom 75th percentile) of years of experience among Power Forwards (PF) and Shooting Guards (SG)
+quantile(gsw$experience[gsw$position == 'PF' | gsw$position == 'SG'], 0.75)
+# e) What is the name of the player whose weight is furthest from the average weight (of all players)?
+gsw$player[which.max((weight-mean(weight))^2)]
+```
+
+# 3) More lists
+```{r}
+hp <- list(
+first = 'Harry',
+last = 'Potter',
+courses = c('Potions', 'Enchantments', 'Spells'),
+sport = 'quidditch',
+age = 18L,
+gpa = 3.9
+)
+```
+
+```{r}
+# a) What is the class of hp?
+class(hp)
+# b) How many elements are in hp?
+length(hp)
+# c) What is the length of courses?
+length(hp$courses)
+# d) What is the data type of the element age?
+typeof(hp$age)
+# e) What is the data type of the element gpa?
+typeof(hp$gpa)
+# f) If you combine age and gpa in a new vector, what is the data type of this vector?
+typeof(c(hp$age, hp$gpa))
+# coercion: logical -> integer -> real -> character
+```
+
+# 4) Technical Questions
+```{r}
+# a) Explain why the following command returns 2?
+1 + TRUE
+# logical is coerced to numeric, with true = 1, false = 0.
+
+# b) Explain why the following command returns FALSE?
+"-2" > 0
+# character "-2" is converted to numeric -2
+
+# c) Explain why the following command returns TRUE?
+(10 <= 5) >= 0
+# in the parenthesis is FALSE, coerced to 0 , which is TRUE in the inequality 0 >=0.
+
+# d) Explain why the following commands A and B are not equivalent?
+# command A
+1 + !TRUE
+# command B
+!TRUE + 1
+
+# for A, !TRUE becomes FALSE, then FALSE is coerced to 0 to add up to 1
+# for B, TRUE + 1 happens first, and then !2 is FALSE
+```
+
+# 5) Subsetting
+```{r}
+lord <- c('v', 'o', 'l', 'd', 'e', 'm', 'o', 'r', 't')
+
+# a) 
+lord[TRUE]
+# TRUE is recycled to length of vector.
+
+# b) 
+lord[length(lord) + 1]
+# This subsets lord by the "length of lord plus 1"th element, which doesn't exist in lord.
+
+# c) 
+lord[seq(from = length(lord), to = 1, by = -2)]
+# This subsets lord by selecting a sequence of elements starting with the last, ending with the first, going backwards by 2.
+
+# d) 
+lord[lord == "o"]
+# This subsets lord by choosing all elements that are "o."
+
+# e) 
+lord[lord != "e" & lord != "o"]
+# This subsets lord by choosing all elements that are not "e" and are not "o" and returning a vector of those values.
+
+# f) 
+lord[lord %in% c('a', 'e', 'i', 'o', 'u')]
+# This subsets lord by choosing all elements that are vowels.
+
+# g) 
+toupper(lord[!(lord %in% c('a', 'e', 'i', 'o', 'u'))])
+# This first chooses all elements in lord that are NOT vowels, then toupper changes the remaining elements to upper case.
+
+# h) 
+paste(lord, collapse = '')
+# This removes pastes all elements right next to each other, leaving only what we put in between the '' between the elements, which in this case was nothing. 
+
+# i) 
+lord[is.na(lord)]
+# This subsetting looks for missing values.
+
+# j) 
+sum(!is.na(lord))
+# This first looks for the values that are not missing, then counts the number of elements.
+
+```
+
+# 6) 2D Arrays (i.e. Matrices)
+```{r}
+vol = matrix(lord, nrow = 3, ncol = 3)
+vol
+```
+
+```{r}
+vol[1, ]
+vol[1:2, 2:1]
+vol[3:1, ]
+vol[ , c(1,2,2)]
+vol[3:1, 3:1]
+vol[c(3:1, 1:3), c(3:2, 2:3)]
+vol[c(3:1, 1:3), c(1:3, 3:1)]
+```
+

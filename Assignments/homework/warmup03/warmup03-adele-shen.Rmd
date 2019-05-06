@@ -1,0 +1,199 @@
+---
+title: "warmup03-adele-shen"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1) Importing Data
+```{r}
+# assembling url so it fits on the screen
+github <- 'https://raw.githubusercontent.com/ucb-stat133/stat133-hws/'
+repo <- 'master/data/nba2018-players.csv'
+datafile <- paste0(github, repo)
+```
+### a
+```{r}
+data_types = c(
+player = "character",
+team = "factor",
+position = "factor",
+height = "integer",
+weight = "integer",
+age = "integer",
+experience = "integer",
+college = "character",
+salary = "real",
+games = "integer",
+minutes = "integer",
+points = "integer",
+points3 = "integer",
+points2 = "integer",
+points1 = "integer"
+)
+```
+### b
+```{r}
+nba <- read.csv(datafile, colClasses = data_types)
+```
+```{r}
+str(nba, vec.len = 1)
+```
+### c
+```{r}
+nba2 <- read.table(
+"nba2018-players.csv",
+colClasses = data_types,
+header = TRUE, sep = ",")
+str(nba2, vec.len = 1)
+```
+### d
+```{r}
+identical(nba, nba2)
+```
+
+# 2) Technical Questions about importing data
+#### a) What happens to the column names of the imported data when you invoke read.csv(datafile, header = FALSE, nrows = 10)?
+###### R will automatically assign names V1, V2, ...V10 to the columns.
+
+#### b) What happens to the data types of the columns when you invoke read.csv(datafile, header = FALSE, nrows = 10)?
+###### If the first row is variable names and are no assigned as column names, they are character entries in columns, so all data gets coerced into characters.
+
+#### c) Why does the command read.table(datafile, nrows = 10) fails to import the data?
+###### If not specified, read.table() uses sep = "" by default, not sep=","
+
+#### d) Say you import nba2018-players.csv in two different ways. In the first option you import the data without specifying the data type of each column. In the second option you do specify the data types as in data_types. You may wonder whether both options return a data frame of the same memory size. You can actually use the function object.size() that provides an estimate of the memory that is being used to store an R object. What data importing function returns the smallest data frame (in terms of memory size)?
+###### Using data_types returns the smaller data frame in terms of memory size.
+
+#### e) Say the object nba is the data frame produced when importing nba2018-players.csv. If you invoke as.matrix(nba), what happens to the data values of this matrix?
+###### Since matrices must be atomic, all data values are coerced to characters (since characters are present).
+
+# 3) Examine Salary
+### a
+```{r}
+summary(nba$salary)
+```
+### b
+```{r}
+hist(nba$salary)
+```
+
+
+### c
+```{r}
+nba$salary2 = nba$salary / 1000000
+hist(nba$salary2)
+```
+
+### d
+```{r}
+hist(log(nba$salary2))
+# Make comments about its shape.
+# There is a tail on the left side now, and the bulk of NBA players make over 1/e million dollars in salary. 
+```
+
+### e
+```{r}
+low = (log(nba$salary2) < -3)
+sum(low)
+```
+
+### f
+```{r}
+nba[low,c('player', 'weight', 'height', 'team', 'position')]
+```
+
+```{r}
+nba = nba[!low, ]
+dim(nba)
+```
+
+# 4) Explore Points
+### a
+```{r}
+summary(nba$points)
+hist(nba$points)
+```
+
+### b
+```{r}
+nba$points[nba$points == 0] = 0.1
+hist(log(nba$points))
+# Comment on the shape of the distribution of the log-transformed points.
+# 
+```
+
+# 5) Transforming Age into a Factor
+### a. Conditional Boxplot
+```{r}
+boxplot(salary2 ~ age, data = nba,
+        xlab = "Age", ylab = "Salary (in millions)")
+```
+### b
+```{r}
+boxplot(points ~ age, data = nba, xlab = "Age", ylab = "Points")
+# comment on whether there seems to be a difference in scored points depending on the age of the players
+# There does not seem to a huge difference in points for the the middle 50% of each age, but as the players age beyond 32, their range of scored points does not reach as high as those of younger players.
+```
+
+```{r}
+age2 = nba$age
+age2[age2 < 20] = 20
+
+age2 <- cut(
+age2,
+breaks = c(20, 24, 29, 40),
+include.lowest = TRUE,
+labels = c('20-24', '25-29', '30+'))
+summary(age2)
+```
+
+# 6) Plotting Salary against Points, by Age Group
+```{r}
+palette1 <- c('#D4D62A', '#4F9D66', '#9575AB')
+age_colors = palette1[age2]
+```
+
+
+```{r}
+plot(salary ~ points, data = nba, log = "xy", main = "",
+xlab = "Points (log scale)", ylab = "Salary (log $)",
+col = age_colors, pch = 19, cex = 0.6)
+legend("bottomright", fill = palette1, legend = levels(age2),
+title = "Age Groups", cex = 0.8)
+```
+
+# 7) Plotting Salary against Points, by Position
+```{r}
+boxplot(salary2 ~ position, nba, xlab = "Position", ylab = "Salary (mil)")
+```
+
+
+```{r}
+boxplot(points ~ position, data = nba, xlab = "Position", ylab = "Points")
+```
+
+
+```{r}
+# Make a plot of salary against points (determine if they should be on the log scale) and color the plotting symbols according to position. Don’t forget to add a legend.
+
+palette2 = c('#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854')
+pos_colors = palette2[nba$position]
+
+
+plot(salary ~ points, data = nba, log = "xy", main = "",
+xlab = "Points (log scale)", ylab = "Salary (log $)",
+col = pos_colors, pch = 19, cex = 0.6)
+legend("bottomright", fill = pos_colors, legend = levels(nba$position),
+title = "Positions", cex = 0.8)
+```
+
+
+
+
+
+
+
+

@@ -1,0 +1,93 @@
+---
+title: "Stat133 Evaluation"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(XML)
+library(xml2)
+library(rvest)
+library(stringr)
+library(ggplot2)
+```
+
+```{r}
+download.file("https://en.wikipedia.org/wiki/Men%27s_long_jump_world_record_progression#Record_progression", destfile = "../data/longjump.html")
+```
+
+```{r}
+longjump = readHTMLTable("../data/longjump.html", header = TRUE, stringsAsFactors = FALSE)
+```
+
+```{r}
+dat = longjump[[1]]
+```
+
+```{r}
+str(dat)
+```
+
+```{r}
+Mark = as.numeric(str_extract(dat$Mark, "[:digit:][:punct:][:digit:][:digit:]"))
+```
+
+```{r}
+str_sub(dat$Athlete[1], start = 1, end = nchar(dat$Athlete[1]) - 6)
+str_sub(dat$Athlete[2], start = 1, end = nchar(dat$Athlete[2]) - 6)
+```
+
+```{r}
+Athlete = rep(NA, length(dat$Athlete))
+for (i in 1:length(dat$Athlete)) {
+  Athlete[i] = str_sub(dat$Athlete[i], start = 1, end = nchar(dat$Athlete[i]) - 6)
+}
+
+Athlete
+```
+
+```{r}
+str_sub(dat$Athlete[1], start = nchar(dat$Athlete[1]) - 3, end = nchar(dat$Athlete[1]) -1)
+```
+
+```{r}
+Country = rep(NA, length(dat$Athlete))
+  for (i in 1:length(dat$Athlete)) {
+    Country[i] = str_sub(dat$Athlete[i], start = nchar(dat$Athlete[i]) - 3, end = nchar(dat$Athlete[i]) - 1)
+}
+```
+
+```{r}
+Date = as.numeric(str_extract(dat$Date, "[:digit:][:digit:][:digit:][:digit:]"))
+```
+
+```{r}
+Long_Jump = data.frame(
+  Mark = Mark,
+  Athlete = Athlete, 
+  Country = Country,
+  Date = Date
+)
+```
+
+```{r}
+write.csv(Long_Jump, "../data/clean.csv")
+```
+
+```{r}
+str(Long_Jump)
+```
+# Plot
+```{r}
+ggplot(Long_Jump) +
+  geom_line(aes(x = Date, y = Mark)) +
+  geom_point(aes(x = Date, y = Mark)) +
+  labs(title = "Graphic Evolution of Men's Long Jump") +
+  xlab(NULL) +
+  ylab(NULL) +
+  theme_minimal()
+```
+

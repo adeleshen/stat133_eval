@@ -1,0 +1,120 @@
+---
+title: "stat133_lab01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+phone <- 80
+transportation <- 20
+groceries <- 527
+gym <- 10
+rent <- 1500
+other <- 83
+```
+
+```{r}
+total <- phone + transportation + groceries + gym + rent + other
+total
+```
+
+```{r}
+total * 5
+```
+
+```{r}
+total * 10
+
+```
+
+```{r}
+expenses <- c(phone, transportation, groceries, gym, rent, other)
+names(expenses) <- c('phone', 'transportation', 'groceries', 'gym', 'rent', 'other')
+```
+
+```{r}
+barplot(expenses)
+
+```
+
+```{r}
+barplot(sort(expenses, decreasing = TRUE))
+
+```
+
+```{r}
+a <- 3
+b <- 4
+hyp <- sqrt(a^2 + b^2)
+```
+
+```{r}
+# Binomial
+n <- 5 
+k <- 2
+p <- 0.5  
+```
+
+```{r}
+factorial(n) / (factorial(n-k) * factorial(k))
+
+```
+
+```{r}
+(factorial(n) / (factorial(n-k) * factorial(k))) * p^k * (1-p)^(n-k)
+
+```
+
+```{r}
+choose(n, k) * p^k * (1-p)^(n-k)
+
+```
+
+```{r}
+choose(10, 3) * (1/6)^3 * (5/6)^(10-3)
+
+```
+
+```{r}
+dbinom(x = 2, size = 5, prob = 1/2)
+
+```
+
+```{r}
+dbinom(x = 3, size = 3, prob = 1/6)
+
+```
+
+```{r}
+dbinom(x = 2, size = 5, prob = 0.35)
+
+```
+
+```{r}
+H4 <- dbinom(x = 4, size = 5, prob = 0.35)
+H5<- dbinom(x = 5, size = 5, prob = 0.35)
+H4 + H5
+```
+
+```{r}
+install.packages(c("stringr", "RColorBrewer", "XML"))
+```
+
+```{r}
+x <- 2
+(3 * x^2) + (4 * x) + 8
+```
+
+```{r}
+x <- -3:3
+(3 * x^2) + (4 * x) + 8
+```
+
+```{r}
+help("+")
+?"^"
+```
+

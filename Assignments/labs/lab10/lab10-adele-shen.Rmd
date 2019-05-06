@@ -1,0 +1,90 @@
+---
+title: "lab10-adele-shen"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Part 1) Computing Probabilities
+```{r}
+# Box 1 contains two blue balls, and one red ball. Box 2 contains two blue balls, three red balls, and one white ball.
+
+
+box1 <- c('blue', 'blue', 'red')
+box2 <- c(rep('blue', 2), rep('red', 3), 'white')
+
+set.seed(111)
+runif(1)
+
+sample = sample(box1, 4, rep = TRUE)
+```
+
+```{r}
+set.seed(1)
+reps = 1000
+drawn_balls = matrix(nrow = reps, ncol = 4)
+
+for (i in 1:reps) {
+if (runif(1) > 0.5) {
+  drawn_balls[i, ] = sample(box1, 4, rep = TRUE)
+} else {
+  drawn_balls[i, ] = sample(box2, 4, rep = FALSE)
+}
+}
+```
+
+```{r}
+head(drawn_balls)
+```
+
+```{r}
+blues = apply(drawn_balls, 1, function(x) sum(x == 'blue'))
+blues
+```
+
+```{r}
+table(blues) / 1000
+```
+
+```{r}
+sum(blues == 0)
+sum(blues == 2)
+```
+
+#********
+```{r}
+blues_rel = vector(mode = "list", length = 5)
+for (i in 0:4) {
+  blues_rel[[i+1]] = cumsum(blues == i) / (1:reps)
+}
+```
+
+```{r}
+library(ggplot2)
+
+data <- data.frame(
+  reps = rep(1:reps, 5),
+  freq = unlist(blues_rel),
+  numblue = rep(0:4, each = 1000)
+)
+```
+
+
+```{r}
+ggplot(data = data, aes(x = reps, y = freq, group = numblue)) +
+  geom_line(aes(color = numblue)) +
+  ggtitle("Relative frequencies of number of blue balls")
+```
+
+
+
+
+```{r}
+?ggplot
+```
+
+
+
+

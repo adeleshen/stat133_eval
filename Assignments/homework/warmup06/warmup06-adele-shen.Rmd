@@ -1,0 +1,177 @@
+---
+title: "warmup06-adele-shen"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+```
+
+### If you were to save some of your annual income for a number of years, how much money could you expect to accumulate under different saving-investing cases (ignoring inflation)? 
+###### All the functions must have Roxygen comments (e.g. @title, @description, @param, @return)
+
+
+```{r}
+#' @title Future Value
+#' @description Computes the future value of an investment
+#' @param amount initial invested amount
+#' @param rate annual rate of return
+#' @param years number of years
+#' @return future value, how much money you would expect to get at the end of this period
+
+future_value = function(amount = 1000, rate = 0.05, years = 1) {
+  fv = amount*(1 + rate)^years
+  return(fv)
+}
+
+future_value(amount = 100, rate = 0.05, years = 1)
+future_value(amount = 500, rate = 0.05, years = 5)
+future_value(amount = 1000, rate = 0.05, years = 10)
+```
+
+```{r}
+#' @title Future Value of Annuity
+#' @description Computes the future value of annuity
+#' @param contrib contributed amount
+#' @param rate annual rate of return
+#' @param years number of years
+#' @return future value, how much money you would expect to get at the end of this period of deposits
+
+annuity = function(contrib = 200, rate = .05, years = 1) {
+  fva = contrib*((1 + rate)^years - 1)/rate
+  return(fva)
+}
+
+annuity(contrib = 200, rate = 0.05, years = 1)
+annuity(contrib = 200, rate = 0.05, years = 2)
+annuity(contrib = 200, rate = 0.05, years = 10)
+```
+
+```{r}
+#' @title Future Value of Growing Annuity
+#' @description Computes the future value of growing annuity
+#' @param contrib contributed amount
+#' @param rate annual rate of return
+#' @param years number of years
+#' @param growth annual growth rate
+#' @return future value, how much money you would expect to get at the end of this period of deposits increasing in value
+
+growing_annuity = function(contrib = 200, rate = .05, growth = 0.03, years = 1) {
+  fvga = contrib*((1 + rate)^years - (1 + growth)^years)/(rate - growth)
+  return(fvga)
+}
+growing_annuity(contrib = 200, rate = 0.05, growth = 0.03, years = 1)
+growing_annuity(contrib = 200, rate = 0.05, growth = 0.03, years = 2)
+growing_annuity(contrib = 200, rate = 0.05, growth = 0.03, years = 10)
+```
+
+# 4) Investing Modalities
+
+```{r}
+modalities = data.frame(matrix(nrow = 11, ncol = 4))
+colnames(modalities) <- c("year", "no_contrib", "fixed_contrib", "growing_contrib")
+no_contrib = rep(0,11)
+fixed_contrib = rep(0,11)
+growing_contrib = rep(0,11)
+for (i in 1:11) {
+  no_contrib[i] = future_value(amount = 1000, rate = 0.05, years = i-1) 
+  fixed_contrib[i] = future_value(amount = 1000, rate = 0.05, years = i-1) + annuity(contrib = 200, rate = 0.05, years = i-1)
+  growing_contrib[i] = future_value(amount = 1000, rate = 0.05, years = i-1) + growing_annuity(contrib = 200, rate = 0.05, growth = 0.03, years = i-1)
+  modalities[ ,1] = 0:10
+  modalities[ ,2] = no_contrib
+  modalities[ ,3] = fixed_contrib
+  modalities[ ,4] = growing_contrib
+}
+
+modalities
+```
+
+
+
+```{r}
+#With the data obtained for each savings modality, make one graph, with lines as geometric objects, that allows you to compare the growth of these investment modes over the 10-year period.
+# Make sure your graph follows standard recommendations: title, axis labels, axis scales, background, legends, colors, visual attributes, etc.
+```
+
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(readr)
+```
+
+```{r}
+
+x = modalities$year
+plot = ggplot(modalities) +
+  geom_line(aes(x = x, no_contrib, color = "lightblue")) +
+  geom_line(aes(x = x, fixed_contrib, color = "pink")) +
+  geom_line(aes(x = x, growing_contrib, color = "yellow")) +
+  labs(title = "Investing Modalities", y = "Amount/Value", x = "Years", color = "mode type") +
+  scale_colour_manual(values = c("yellow","lightblue", "pink"), name="Mode Type", labels = c("Mode 1: FV only", "Mode 2: FV with annuity", "Mode 3: FV with growing annuity")) +
+  theme_bw()
+plot
+```
+
+
+```{r}
+# The last part of this assignment involves a simple simulation taking into account different financial products, with “typical” rates of return.
+# In this simulation we’ll consider three financial products available to most consumers: a) regular savings accounts, b) high-yield savings accounts, and c) index mutual funds.
+```
+
+# 5) Savings Simulation
+```{r}
+no_contrib_reg = rep(0,16)
+fixed_contrib_reg = rep(0,16)
+growing_contrib_reg = rep(0,16)
+no_contrib_highyield = rep(0,16)
+fixed_contrib_highyield = rep(0,16)
+growing_contrib_highyield = rep(0,16)
+no_contrib_index = rep(0,16)
+fixed_contrib_index = rep(0,16)
+growing_contrib_index = rep(0,16)
+for (i in 1:16) {
+  no_contrib_reg[i] = future_value(amount = 10000, rate = 0.001, years = i-1) 
+  no_contrib_highyield[i] = future_value(amount = 10000, rate = 0.0225, years = i-1) 
+  no_contrib_index[i] = future_value(amount = 10000, rate = 0.065, years = i-1) 
+
+  fixed_contrib_reg[i] = future_value(amount = 10000, rate = 0.001, years = i-1) + annuity(contrib = 2000, rate = 0.001, years = i-1)
+  fixed_contrib_highyield[i] = future_value(amount = 10000, rate = 0.0225, years = i-1) + annuity(contrib = 2000, rate = 0.0225, years = i-1)
+  fixed_contrib_index[i] = future_value(amount = 10000, rate = 0.065, years = i-1) + annuity(contrib = 2000, rate = 0.065, years = i-1)
+  
+  growing_contrib_reg[i] = future_value(amount = 10000, rate = 0.001, years = i-1) + growing_annuity(contrib = 2000, rate = 0.05, growth = 0.04, years = i-1)
+  growing_contrib_highyield[i] = future_value(amount = 10000, rate = 0.0225, years = i-1) + growing_annuity(contrib = 2000, rate = 0.0225, growth = 0.04, years = i-1)  
+  growing_contrib_index[i] = future_value(amount = 10000, rate = 0.065, years = i-1) + growing_annuity(contrib = 2000, rate = 0.065, growth = 0.04, years = i-1)
+}
+
+```
+
+```{r}
+simulation = data.frame(year= c(0:15), 
+                        balance = c(no_contrib_reg = no_contrib_reg, no_contrib_highyield = no_contrib_highyield, no_contrib_index = no_contrib_index, fixed_contrib_reg = fixed_contrib_reg, fixed_contrib_highyield = fixed_contrib_highyield, fixed_contrib_index = fixed_contrib_index, growing_contrib_reg = growing_contrib_reg, growing_contrib_highyield = growing_contrib_highyield, growing_contrib_index = growing_contrib_index), 
+                        modality = c(rep("no_contrib", 16*3),
+                   rep("fixed_contrib", 16*3),
+                   rep("growing_contrib", 16*3)),
+                        rate = c(rep("regular savings", 16),
+                   rep("high-yield savings", 16),
+                   rep("index fund", 16),
+                   rep("regular savings", 16),
+                   rep("high-yield savings", 16),
+                   rep("index fund", 16),
+                   rep("regular savings", 16),
+                   rep("high-yield savings", 16),
+                   rep("index fund", 16))
+)
+
+ggplot(simulation) +
+  geom_line(aes(x = year, y = balance, color = modality)) +
+  geom_point(aes(x = year, y = balance, color = modality)) +
+  labs(title = "Savings Timeline Graph") +
+  facet_wrap(~rate)
+```
+
+
+
+
+
